@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Usage‑Based Billing Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 1rem; }
+        section { margin-bottom: 2rem; border: 1px solid #ddd; padding: 1rem; border-radius: 4px; }
+        h2 { margin-top: 0; }
+        label { display: block; margin-top: 0.5rem; }
+        input[type="text"], input[type="number"], input[type="datetime-local"] { width: 100%; padding: 0.5rem; margin-top: 0.25rem; }
+        button { margin-top: 0.5rem; padding: 0.5rem 1rem; }
+        pre { background: #f8f8f8; padding: 1rem; border: 1px solid #eee; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>Usage‑Based Billing Dashboard</h1>
+    <section id="create-customer-section">
+        <h2>Create Customer</h2>
+        <label>
+            Name
+            <input type="text" id="customer-name" placeholder="Customer Name">
+        </label>
+        <label>
+            Email
+            <input type="text" id="customer-email" placeholder="email@example.com">
+        </label>
+        <label>
+            Timezone
+            <input type="text" id="customer-tz" value="UTC">
+        </label>
+        <button id="create-customer-btn">Create Customer</button>
+        <pre id="create-customer-output"></pre>
+    </section>
+    <section id="ingest-events-section">
+        <h2>Ingest Event</h2>
+        <label>
+            Customer ID
+            <input type="number" id="ingest-cid">
+        </label>
+        <label>
+            Feature
+            <input type="text" id="ingest-feature" placeholder="api_calls">
+        </label>
+        <label>
+            Quantity
+            <input type="number" step="0.01" id="ingest-quantity" value="1">
+        </label>
+        <label>
+            Event Time
+            <input type="datetime-local" id="ingest-timestamp">
+        </label>
+        <button id="ingest-event-btn">Ingest Event</button>
+        <pre id="ingest-event-output"></pre>
+    </section>
+    <section id="usage-section">
+        <h2>Get Usage</h2>
+        <label>
+            Customer ID
+            <input type="number" id="usage-cid">
+        </label>
+        <label>
+            Start Time
+            <input type="datetime-local" id="usage-start">
+        </label>
+        <label>
+            End Time
+            <input type="datetime-local" id="usage-end">
+        </label>
+        <button id="get-usage-btn">Get Usage</button>
+        <pre id="usage-output"></pre>
+    </section>
+    <section id="invoice-run-section">
+        <h2>Run Invoicing</h2>
+        <label>
+            Period (YYYY-MM)
+            <input type="text" id="invoice-period" placeholder="2025-09">
+        </label>
+        <label>
+            Unit Price
+            <input type="number" step="0.01" id="invoice-unitprice" value="0.01">
+        </label>
+        <button id="run-invoicing-btn">Generate Invoices</button>
+        <pre id="invoice-run-output"></pre>
+    </section>
+    <section id="invoice-list-section">
+        <h2>List Invoices</h2>
+        <label>
+            Customer ID
+            <input type="number" id="invoice-list-cid">
+        </label>
+        <button id="list-invoices-btn">List Invoices</button>
+        <pre id="invoice-list-output"></pre>
+    </section>
+    <script src="main.js"></script>
+</body>
+</html>
