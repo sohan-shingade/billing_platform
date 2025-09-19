@@ -43,10 +43,15 @@ from datetime import datetime
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import parse_qs, urlparse
 from pathlib import Path
+import os
 
+BASE_DIR = Path(__file__).resolve().parent
+FRONTEND_DIR = BASE_DIR.parent / "frontend"
 
-BASE_DIR = Path(__file__).resolve().parent  # .../billing_platform/backend
-DB_PATH = str(BASE_DIR / "billing.db")      # backend/billing.db
+DEFAULT_DB = BASE_DIR / "data" / "billing.db"
+DB_PATH = os.getenv("BILLING_DB", str(DEFAULT_DB))
+Path(DB_PATH).parent.mkdir(parents=True, exist_ok=True)
+
 
 def init_db():
     """Initialize the SQLite database with the required tables if they don't exist."""
@@ -419,15 +424,37 @@ class BillingRequestHandler(BaseHTTPRequestHandler):
         self.wfile.write(data)
 
 
-def run_server(host: str = "0.0.0.0", port: int = 8000):
-    """Start the HTTP server in the current thread.
-
-    This function blocks indefinitely. It should be run in a separate thread
-    if you need the server to run alongside other code in the same process.
+def run_server(host=None, port=None):
     """
+    Start the HTTP server in the current thread.
+    Blocks indefinitely (use a separate thread if you need concurrency).
+    Honors HOST/PORT env vars (PORT is required on most PaaS).
+    """
+    import os, signal, sys
+    from http.server import HTTPServer
+    from pathlib import Path
+
+    # Defaults + PaaS overrides
+    host = host or os.getenv("HOST", "0.0.0.0")
+    port = int(os.getenv("PORT", port or 8000))
+
+    # Make sure the DB directory exists (SQLite won't create parent dirs)
+    Path(DB_PATH).parent.mkdir(parents=True, exist_ok=True)
+
+    # Init schema and start server
     init_db()
     server = HTTPServer((host, port), BillingRequestHandler)
-    print(f"Billing server listening on {host}:{port}")
+
+    # Graceful shutdown for Docker/Render/etc.
+    def _graceful_shutdown(signum, frame):
+        try:
+            server.shutdown()
+        finally:
+            server.server_close()
+            sys.exit(0)
+    signal.signal(signal.SIGTERM, _graceful_shutdown)
+
+    print(f"Billing server listening on {host}:{port}", flush=True)
     try:
         server.serve_forever()
     except KeyboardInterrupt:
@@ -441,3 +468,7 @@ def start_background_server(host: str = "0.0.0.0", port: int = 8000) -> threadin
     thread = threading.Thread(target=run_server, args=(host, port), daemon=True)
     thread.start()
     return thread
+
+
+if __name__ == "__main__":
+    run_server()

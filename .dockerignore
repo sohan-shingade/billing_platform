@@ -1,0 +1,10 @@
+.git
+.gitignore
+__pycache__/
+*.pyc
+.DS_Store
+
+# local dev artifacts
+backend/data/
+node_modules/
+frontend/*.map
